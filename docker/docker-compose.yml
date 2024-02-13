@@ -1,0 +1,55 @@
+version: "3"
+
+services:
+  web:
+    build: ./apache
+    container_name: Apachee
+    ports:
+      - ""
+    links:
+      - php
+    volumes:
+      - ./www/:/var/www/html/
+      - ./config/my.cnf:/etc/mysql/my.cnf
+    environment:
+      APACHE_FCGI_PROXY_TIMEOUT: 3600
+    networks:
+      - default
+
+  db:
+    build: ./db
+    container_name: Mysqll
+    links:
+      - web
+    volumes:
+      - ./data/mysql:/var/lib/mysql:delegated
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 
+      TZ: America/Sao_Paulo
+    networks: 
+      - default
+    
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: PhpMyAdminn
+    volumes:
+      - ./config/config.inc.php:/etc/phpmyadmin/config.user.inc.php
+      - ./config/phpmyadmin-misc.ini:/usr/local/etc/php/conf.d/phpmyadmin-misc.ini
+    links:
+      - db
+    ports:
+      - ""
+    restart: always
+    networks:
+      - default
+    
+  php:
+    build: ./php
+    container_name: phpp
+    ports:
+      - ""
+    volumes:
+      - ./www/:/var/www/html/
+    networks:
+      - default
